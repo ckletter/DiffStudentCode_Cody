@@ -20,6 +20,13 @@ public class PlagiarismChecker {
     public static int longestSharedSubstring(String doc1, String doc2) {
         return tabulationLSS(doc1, doc2);
     }
+
+    /**
+     * Implements longest shared substring using a tabulation approach
+     * @param doc1 first document
+     * @param doc2 second document
+     * @return
+     */
     public static int tabulationLSS(String doc1, String doc2) {
         int lenOne = doc1.length();
         int lenTwo = doc2.length();
@@ -39,45 +46,51 @@ public class PlagiarismChecker {
                 }
             }
         }
+        // Create an array to store all the longest shared substrings
         ArrayList<String> longestSubstrings = new ArrayList<String>();
-        boolean[][] visited = new boolean[lenOne + 1][lenTwo + 1];
-        findLongest(longestSubstrings, shared, lenOne, lenTwo, "", doc1, doc2, shared[lenOne][lenTwo], visited);
+        findLongest(longestSubstrings, shared, lenOne, lenTwo, "", doc1, doc2, shared[lenOne][lenTwo]);
+        // Print out each of the longest shared substrings
         for (String longest : longestSubstrings) {
             System.out.println(longest);
         }
         // Return bottom right corner
         return shared[lenOne][lenTwo];
     }
-    public static void findLongest(ArrayList<String> longestSubstrings, int[][] shared, int i, int j, String current, String doc1, String doc2, int longestLength, boolean[][] visited) {
+
+    /**
+     * DFS backtracking approach to find all the longest shared substrings, saving it in longest substrings
+     */
+    public static void findLongest(ArrayList<String> longestSubstrings, int[][] shared, int i, int j, String current, String doc1, String doc2, int longestLength) {
         int difference = longestLength - current.length();
-        if (visited[i][j]) {
-            return;
-        }
+        // Not possible to add enough letters to reach target longest substring
         if (i - difference < 0 || j - difference < 0) {
             return;
         }
+        // If on first row or column, if our current string matches our target length, add the string to our array
         if (i == 0 || j == 0) {
             if (current.length() == longestLength) {
                 longestSubstrings.add(current);
             }
             return;
         }
-        // Mark square as visited
-        visited[i][j] = true;
+        // If the two chars are equal at current location, search the top left corner
         if (shared[i - 1][j - 1] == shared[i][j] - 1 && doc1.charAt(i - 1) == doc2.charAt(j - 1)) {
             current = doc1.charAt(i - 1) + current;
-            findLongest(longestSubstrings, shared, i - 1, j - 1, current, doc1, doc2, longestLength, visited);
+            findLongest(longestSubstrings, shared, i - 1, j - 1, current, doc1, doc2, longestLength);
         }
         else {
+            // If the squares left and up are equal, add both searches to call stack
             if (shared[i - 1][j] == shared[i][j - 1]) {
-                findLongest(longestSubstrings, shared, i - 1, j, current, doc1, doc2, longestLength, visited);
-                findLongest(longestSubstrings, shared, i, j - 1, current, doc1, doc2, longestLength, visited);
+                findLongest(longestSubstrings, shared, i - 1, j, current, doc1, doc2, longestLength);
+                findLongest(longestSubstrings, shared, i, j - 1, current, doc1, doc2, longestLength);
             }
+            // If the square up is greater than square left, search square up
             else if (shared[i - 1][j] > shared[i][j - 1]) {
-                findLongest(longestSubstrings, shared, i - 1, j, current, doc1, doc2, longestLength, visited);
+                findLongest(longestSubstrings, shared, i - 1, j, current, doc1, doc2, longestLength);
             }
+            // If the square left is greater than square up, search square left
             else {
-                findLongest(longestSubstrings, shared, i, j - 1, current, doc1, doc2, longestLength, visited);
+                findLongest(longestSubstrings, shared, i, j - 1, current, doc1, doc2, longestLength);
             }
         }
     }
